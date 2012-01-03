@@ -1,0 +1,4 @@
+# Tools & testing
+nose==1.0.0
+
+pymongo==2.0.1

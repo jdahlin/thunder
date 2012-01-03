@@ -1,0 +1,3 @@
+recursive-include thunder *.py
+
+include MANIFEST.in LICENSE README.rst NEWS Makefile setup.cfg ez_setup.py
