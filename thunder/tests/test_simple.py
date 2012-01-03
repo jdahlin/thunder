@@ -1,6 +1,10 @@
+import datetime
+import decimal
 import unittest
 
-from thunder.fields import StringField, ObjectIdField
+from thunder.exceptions import ValidationError
+from thunder.fields import (DateTimeField, DecimalField,
+                            ObjectIdField, StringField)
 from thunder.info import get_cls_info
 from thunder.store import Store
 
@@ -18,12 +22,18 @@ class SPPerson(object):
     name = StringField()
 
 
-class TestStore(unittest.TestCase):
+class StoreTest(unittest.TestCase):
     def setUp(self):
         self.store = Store('localhost', 'thunder-test')
 
-    def _get_collection(self, cls):
+    def tearDown(self):
+        self.store.drop_collections()
+
+    def getCollection(self, cls):
         return get_cls_info(cls).get_collection(self.store)
+
+
+class TestStore(StoreTest):
 
     def testSimple(self):
         p = Person()
@@ -53,7 +63,7 @@ class TestStore(unittest.TestCase):
         self.assertEquals(p.id, old_id)
 
     def testRemove(self):
-        collection = self._get_collection(Person)
+        collection = self.getCollection(Person)
 
         p = Person()
         p.name = "John"
@@ -77,7 +87,7 @@ class TestStore(unittest.TestCase):
         self.assertEquals(p.name, "John")
 
     def testFind(self):
-        collection = self._get_collection(Person)
+        collection = self.getCollection(Person)
 
         p = Person()
         p.name = "John"
@@ -146,5 +156,42 @@ class TestStore(unittest.TestCase):
         self.store.flush()
         self.assertEquals(self.store.count(Person), 0)
 
-    def tearDown(self):
-        self.store.drop_collections()
+
+
+class DateTimeFieldTest(StoreTest):
+    def testDatetime(self):
+        class DateTimeDocument(object):
+            mid = ObjectIdField()
+            date = DateTimeField()
+
+        # MongoDB has a precision (milliseconds) lower than
+        # the datetime module, so create one MongoDB can handle
+        d = DateTimeDocument()
+        d.date = old = datetime.datetime(2012, 1, 1, 12,
+                                         34, 56, 789000)
+        self.store.add(d)
+        self.store.flush()
+        self.store.drop_cache()
+
+        d = list(self.store.find(DateTimeDocument))[0]
+        self.assertEquals(d.date, old)
+
+
+class DecimalFieldTest(StoreTest):
+    def testDatetime(self):
+        class DecimalDocument(object):
+            mid = ObjectIdField()
+            dec = DecimalField(precision_check=True)
+
+        d = DecimalDocument()
+        d.dec = old = decimal.Decimal("12.45")
+        self.store.add(d)
+        self.store.flush()
+        self.store.drop_cache()
+
+        d = list(self.store.find(DecimalDocument))[0]
+        self.assertEquals(d.dec, old)
+
+        self.store.drop_cache()
+        self.assertRaises(
+            ValidationError, setattr, d, 'dec', decimal.Decimal("12.345678"))

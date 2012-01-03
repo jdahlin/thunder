@@ -73,7 +73,10 @@ class Store(object):
     def add(self, obj):
         obj_info = get_obj_info(obj)
 
-        assert not obj_info.get('store')
+        if obj_info.get('store') is not None:
+            raise TypeError(
+                "Document %s is already in a store" % (obj, ))
+
         obj_info.set('store', self)
         self.obj_infos.add(obj_info)
 
@@ -108,6 +111,9 @@ class Store(object):
     def flush(self):
         for obj_info in self.obj_infos:
             self._flush_one(obj_info)
+
+    def drop_cache(self):
+        self._cache = {}
 
     def drop_collections(self):
         for name in self.database.collection_names():
