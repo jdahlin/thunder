@@ -18,9 +18,10 @@ class Field(object):
         if obj is None:
             return self
         obj_info = get_obj_info(obj)
-        if obj_info is not None:
-            value = obj_info.variables[self]
-            return self.to_python(value)
+        value = obj_info.variables.get(self, None)
+        if value is None:
+            return None
+        return self.to_python(value)
 
     def to_python(self, value):
         return value
