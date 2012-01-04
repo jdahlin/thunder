@@ -43,6 +43,9 @@ class Store(object):
             obj_info.variables[field] = value
 
         self._cache[(cls_info, doc["_id"])] = obj
+        func = getattr(obj, '__thunder_loaded__', None)
+        if func:
+            func()
         return obj
 
     def get(self, cls, obj_id):
@@ -97,18 +100,25 @@ class Store(object):
         mongo_doc = obj_info.to_mongo()
 
         action = obj_info.get('action')
+        obj = obj_info.obj
+        func = getattr(obj, '__thunder_pre_flush__', None)
+        if func:
+            func()
+
         if action == 'remove':
-            obj = obj_info.obj
             collection.remove(mongo_doc)
             obj_info.delete("store")
-            return
+        else:
+            collection.save(mongo_doc)
 
-        collection.save(mongo_doc)
+            obj = obj_info.obj
+            self._cache[(cls_info, mongo_doc['_id'])] = obj
+            if obj_info.get_obj_id() is None:
+                obj_info.set_obj_id(mongo_doc['_id'])
 
-        obj = obj_info.obj
-        self._cache[(cls_info, mongo_doc['_id'])] = obj
-        if obj_info.get_obj_id() is None:
-            obj_info.set_obj_id(mongo_doc['_id'])
+        func = getattr(obj, '__thunder_flushed__', None)
+        if func:
+            func()
 
     def flush(self):
         for obj_info in self.obj_infos:

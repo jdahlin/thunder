@@ -254,6 +254,79 @@ class TestStore(StoreTest):
         self.assertEquals(self.store.count(Person), 0)
         self.assertOp(Person, name='find')
 
+    def testDropCollection(self):
+        class Document(object):
+            i = ObjectIdField()
+        s = Store('localhost', 'hurricane-test-2')
+        d = Document()
+        s.add(d)
+        s.drop_collection(Document)
+
+
+class TestHooks(StoreTest):
+    def testLoaded(self):
+        class Document(object):
+            i = ObjectIdField()
+
+            def __init__(self):
+                self.loaded = False
+
+            def __thunder_loaded__(self):
+                self.loaded = True
+
+        d = Document()
+        self.failIf(d.loaded)
+        self.store.add(d)
+        self.failIf(d.loaded)
+        self.store.flush()
+        self.failIf(d.loaded)
+        self.store.drop_cache()
+        self.failIf(d.loaded)
+        self.assertOp(Document, name='save')
+
+        self.failIf(d.loaded)
+        d = self.store.find_one(Document)
+        self.failUnless(d.loaded)
+        self.assertOp(Document, name='find_one')
+
+    def testPreflush(self):
+        class Document(object):
+            i = ObjectIdField()
+
+            def __init__(self):
+                self.flushed = False
+
+            def __thunder_pre_flush__(self):
+                self.flushed = True
+                if self.i is not None:
+                    raise AssertionError()
+        d = Document()
+        self.failIf(d.flushed)
+        self.store.add(d)
+        self.failIf(d.flushed)
+        self.store.flush()
+        self.failUnless(d.flushed)
+        self.assertOp(Document, name='save')
+
+    def testFlushed(self):
+        class Document(object):
+            i = ObjectIdField()
+
+            def __init__(self):
+                self.flushed = False
+
+            def __thunder_flushed__(self):
+                self.flushed = True
+                if self.i is None:
+                    raise AssertionError()
+        d = Document()
+        self.failIf(d.flushed)
+        self.store.add(d)
+        self.failIf(d.flushed)
+        self.store.flush()
+        self.failUnless(d.flushed)
+        self.assertOp(Document, name='save')
+
 
 class DateTimeFieldTest(StoreTest):
     def testDatetime(self):
