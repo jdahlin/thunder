@@ -172,6 +172,37 @@ class TestStore(StoreTest):
         self.failUnless(isinstance(results[0], Person))
         self.failUnless(isinstance(results[1], Person))
 
+    def testFindBy(self):
+        class Person(object):
+            id = ObjectIdField()
+            name = StringField()
+            full_name = StringField()
+
+        collection = self.getCollection(Person)
+
+        p = Person()
+        p.name = "John"
+        p.full_name = "Jonathan Doe"
+        self.store.add(p)
+
+        p = Person()
+        p.name = "Jane"
+        p.full_name = "Jane Doe"
+        self.store.add(p)
+
+        self.assertEquals(collection.count(), 0)
+        self.assertOp(Person, name='count')
+        self.store.flush()
+        self.assertOp(Person, name='save')
+        self.assertOp(Person, name='save')
+        self.assertEquals(collection.count(), 2)
+        self.assertOp(Person, name='count')
+
+        results = list(self.store.find_by(Person, name='Jane'))
+        self.assertOp(Person, name='find')
+        self.assertEquals(len(results), 1)
+        self.failUnless(isinstance(results[0], Person))
+
     def testFindArgs(self):
         class Person(object):
             id = ObjectIdField()
@@ -217,6 +248,35 @@ class TestStore(StoreTest):
         self.assertOp(Person, name='save')
 
         p1 = self.store.find_one(Person, {'name': 'John'})
+        self.failUnless(p1)
+
+        self.assertOp(Person, name='find_one')
+
+        self.failUnless(isinstance(p1, Person))
+        self.assertEquals(p1.name, p.name)
+        self.assertEquals(p1.full_name, p.full_name)
+
+    def testFindOneBy(self):
+        class Person(object):
+            id = ObjectIdField()
+            name = StringField()
+            full_name = StringField()
+
+        p = Person()
+        p.name = "John"
+        p.full_name = "Jonathan Doe"
+
+        self.store.add(p)
+
+        p1 = self.store.find_one_by(Person, name='John')
+        self.failIf(p1)
+
+        self.assertOp(Person, name='find_one')
+
+        self.store.flush()
+        self.assertOp(Person, name='save')
+
+        p1 = self.store.find_one_by(Person, name='John')
         self.failUnless(p1)
 
         self.assertOp(Person, name='find_one')

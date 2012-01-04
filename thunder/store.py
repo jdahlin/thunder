@@ -70,6 +70,20 @@ class Store(object):
         if item is not None:
             return self._build_doc(cls_info, item)
 
+    def find_by(self, cls, **kwargs):
+        cls_info = get_cls_info(cls)
+        collection = cls_info.get_collection(self)
+        cursor = self._load(cls_info, collection.find, kwargs)
+        for item in cursor:
+            yield self._build_doc(cls_info, item)
+
+    def find_one_by(self, cls, **kwargs):
+        cls_info = get_cls_info(cls)
+        collection = cls_info.get_collection(self)
+        item = self._load(cls_info, collection.find_one, **kwargs)
+        if item is not None:
+            return self._build_doc(cls_info, item)
+
     def count(self, cls):
         cls_info = get_cls_info(cls)
         collection = cls_info.get_collection(self)
