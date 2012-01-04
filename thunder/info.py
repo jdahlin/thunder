@@ -33,18 +33,18 @@ class ClassInfo(object):
         for attr in dir(cls):
             field = getattr(cls, attr, None)
             if isinstance(field, ObjectIdField):
-                if self.id_field:
+                if self.id_field:  # pragma: nocoverage
                     raise InvalidObject(
                         "There can only be one ObjectIdField")
                 self.id_field = field
             if isinstance(field, Field):
-                if attr == '_id':
+                if attr == '_id':  # pragma: nocoverage
                     raise InvalidObject(
                         "Cannot create a fields called '_id', it's reserved "
                         "to mongodb")
                 pairs.append((attr, field))
 
-        if not self.id_field:
+        if not self.id_field:  # pragma: nocoverage
             raise InvalidObject(
                 "%r misses an ObjectIdField" % (cls.__name__, ))
 
@@ -62,7 +62,7 @@ class ClassInfo(object):
             self.collection = collection
         return self.collection
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: nocoverage
         return '<ClassInfo (%s, %s)>' % (self.cls.__name__,
                                          self.doc_name)
 
@@ -90,7 +90,7 @@ class ObjectInfo(object):
         return self.variables.get(self.cls_info.id_field)
 
     @property
-    def doc_name(self):
+    def doc_name(self):  # pragma: nocoverage
         return self.cls_info.doc_name
 
     def to_mongo(self):

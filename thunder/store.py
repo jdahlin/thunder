@@ -51,7 +51,7 @@ class Store(object):
         collection = cls_info.get_collection(self)
         cursor = self._load(cls_info, collection.find,
                             {'_id': obj_id}, limit=2)
-        if cursor.count() == 2:
+        if cursor.count() == 2:  # pragma: nocoverage
             raise NotOneError("One document expected, but more found")
         elif cursor.count() == 1:
             return self._build_doc(cls_info, cursor[0])
@@ -80,7 +80,7 @@ class Store(object):
     def add(self, obj):
         obj_info = get_obj_info(obj)
 
-        if obj_info.get('store') is not None:
+        if obj_info.get('store') is not None:  # pragma: nocoverage
             raise TypeError(
                 "Document %s is already in a store" % (obj, ))
 

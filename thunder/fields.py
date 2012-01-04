@@ -51,7 +51,7 @@ class EmailField(StringField):
         re.IGNORECASE
     )
 
-    def from_python(self, value):
+    def from_python(self, value):  # pragma: nocoverage
         if not EmailField.EMAIL_REGEX.match(value):
             raise ValidationError(
                 "Invalid Mail-address: %r" % (value, ))
@@ -66,13 +66,13 @@ class DateTimeField(Field):
         return value
 
     def from_python(self, value):
-        if self.default == datetime.datetime.now:
+        if self.default == datetime.datetime.now:  # pragma: nocoverage
             value = datetime.datetime.now()
         return value
 
 
 class IntField(Field):
-    def to_python(self, value):
+    def to_python(self, value):  # pragma: nocoverage
         try:
             return int(value)
         except ValueError, e:
@@ -96,7 +96,7 @@ class DecimalField(Field):
         self.precision_check = precision_check
         Field.__init__(self, default=decimal.Decimal("0"))
 
-    def _validate(self, value):
+    def _validate(self, value):  # pragma: nocoverage
         if self.min_value is not None and value < self.min_value:
             raise ValidationError(
                 'Decimal value %r is too small, min is %r' % (
@@ -107,7 +107,7 @@ class DecimalField(Field):
                 'Decimal value %r is too large, max is %r' % (
                 value, self.max_value))
 
-    def to_python(self, value):
+    def to_python(self, value):  # pragma: nocoverage
         if not isinstance(value, basestring):
             value = unicode(value)
 
@@ -130,7 +130,7 @@ class DecimalField(Field):
         return value
 
     def from_python(self, value):
-        if not isinstance(value, decimal.Decimal):
+        if not isinstance(value, decimal.Decimal):  # pragma: nocoverage
             value = decimal.Decimal(value)
 
         if self.precision_check:

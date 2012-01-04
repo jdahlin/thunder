@@ -1,7 +1,7 @@
 all: check
 
 test: clean_coverage
-	@nosetests --all-modules --with-coverage --cover-package=thunder thunder
+	@nosetests --all-modules --with-coverage --cover-package=thunder -w thunder -s -d
 
 clean_coverage:
 	@rm -f .coverage
@@ -26,8 +26,6 @@ pyflakes:
 	@pyflakes thunder
 
 check: pep8 pyflakes test
-	@grep ^TOTAL tests_output/test.log | grep 100% >/dev/null || \
-	{ echo 'Unit tests coverage is incomplete.'; exit 1; }
 
 sphinx:
 	@sphinx-apidoc -o apidocs -F -H thunder -A thunder -V 1.0 -R 1.0 thunder
