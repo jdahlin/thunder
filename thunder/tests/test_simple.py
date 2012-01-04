@@ -9,7 +9,6 @@ from thunder.info import get_cls_info
 from thunder.store import Store
 
 
-
 class StoreTest(unittest.TestCase):
     def setUp(self):
         self.store = Store('localhost', 'thunder-test')
@@ -188,12 +187,12 @@ class TestStore(StoreTest):
         p.full_name = "Jonathan Doe"
         self.store.add(p)
 
-        results = list(self.store.find(Person, { 'name' : 'John' }))
+        results = list(self.store.find(Person, {'name': 'John'}))
         self.assertOp(Person, name='find')
         self.assertEquals(len(results), 0)
         self.store.flush()
         self.assertOp(Person, name='save')
-        results = list(self.store.find(Person, { 'name' : 'John' }))
+        results = list(self.store.find(Person, {'name': 'John'}))
         self.assertOp(Person, name='find')
         self.assertEquals(len(results), 1)
 
@@ -211,11 +210,10 @@ class TestStore(StoreTest):
         p = Person()
         p.name = "John"
         p.full_name = "Jonathan Doe"
-        collection = self.getCollection(Person)
 
         self.store.add(p)
 
-        p1 = self.store.find_one(Person, { 'name' : 'John' })
+        p1 = self.store.find_one(Person, {'name': 'John'})
         self.failIf(p1)
 
         self.assertOp(Person, name='find_one')
@@ -223,7 +221,7 @@ class TestStore(StoreTest):
         self.store.flush()
         self.assertOp(Person, name='save')
 
-        p1 = self.store.find_one(Person, { 'name' : 'John' })
+        p1 = self.store.find_one(Person, {'name': 'John'})
         self.failUnless(p1)
 
         self.assertOp(Person, name='find_one')
@@ -242,7 +240,6 @@ class TestStore(StoreTest):
         p = Person()
         p.name = "John Count"
         p.full_name = "Jonathan Doe Count"
-        collection = self.getCollection(Person)
 
         self.assertEquals(self.store.count(Person), 0)
         self.store.add(p)
@@ -262,7 +259,6 @@ class TestStore(StoreTest):
 
         self.assertEquals(self.store.count(Person), 0)
         self.assertOp(Person, name='find')
-
 
 
 class DateTimeFieldTest(StoreTest):

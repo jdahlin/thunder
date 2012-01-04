@@ -1,10 +1,9 @@
 import datetime
 import decimal
-import math
 import re
 
 from thunder.exceptions import ValidationError
-from thunder.info import get_obj_info, get_cls_info
+from thunder.info import get_obj_info
 
 
 class Field(object):
@@ -42,9 +41,14 @@ class StringField(Field):
 
 class EmailField(StringField):
     EMAIL_REGEX = re.compile(
-        r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*"  # dot-atom
-        r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-011\013\014\016-\177])*"'  # quoted-string
-        r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?$', re.IGNORECASE  # domain
+        # dot-atom
+        r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*"
+        # quoted-string
+        r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|'
+        r'\\[\001-011\013\014\016-\177])*"'
+        # domain
+        r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?$',
+        re.IGNORECASE
     )
 
     def from_python(self, value):
@@ -87,7 +91,8 @@ class DecimalField(Field):
                  **kwargs):
         self.min_value = min_value
         self.max_value = max_value
-        self.precision_multiplier = decimal.Decimal(10 ** -decimal.Decimal(self.precision))
+        self.precision_multiplier = decimal.Decimal(
+            10 ** -decimal.Decimal(self.precision))
         self.precision_check = precision_check
         Field.__init__(self, default=decimal.Decimal("0"))
 

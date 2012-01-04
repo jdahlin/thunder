@@ -1,2 +1,5 @@
 *.pyc
 virtualenv
+dist
+.coverage
+thunder.egg-info

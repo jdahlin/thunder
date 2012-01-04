@@ -1,4 +1,4 @@
-from thunder.exceptions import InvalidObject, NotOneError
+from thunder.exceptions import InvalidObject
 from thunder.utils import TraceCollection
 
 
@@ -10,6 +10,7 @@ def get_obj_info(obj):
         obj.__thunder_object_info__ = obj_info
         return obj_info
 
+
 def get_cls_info(cls):
     if "__thunder_class_info__" in cls.__dict__:
         # Can't use attribute access here, otherwise subclassing won't work.
@@ -17,6 +18,7 @@ def get_cls_info(cls):
     else:
         cls.__thunder_class_info__ = ClassInfo(cls)
         return cls.__thunder_class_info__
+
 
 class ClassInfo(object):
     def __init__(self, cls):
@@ -98,5 +100,3 @@ class ObjectInfo(object):
                 continue
             doc[attr] = self.variables.get(field, field.default)
         return doc
-
-
