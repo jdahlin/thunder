@@ -1,4 +1,6 @@
 from thunder.exceptions import InvalidObject, NotOneError
+from thunder.utils import TraceCollection
+
 
 def get_obj_info(obj):
     try:
@@ -21,6 +23,7 @@ class ClassInfo(object):
         self.cls = cls
         self.doc_name = cls.__dict__.get('__thunder_doc__', cls.__name__)
         self.id_field = None
+        self.collection = None
 
         # FIXME: move this some place.
         from thunder.fields import Field, ObjectIdField
@@ -49,8 +52,13 @@ class ClassInfo(object):
         self.attributes = dict(pairs)
 
     def get_collection(self, store):
-        collection = store.database[self.doc_name]
-        return collection
+        if not self.collection:
+            collection = store.database[self.doc_name]
+            if store.trace:
+                collection = TraceCollection(collection)
+            store.collections.append(collection)
+            self.collection = collection
+        return self.collection
 
     def __repr__(self):
         return '<ClassInfo (%s, %s)>' % (self.cls.__name__,

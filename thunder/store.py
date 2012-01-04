@@ -6,19 +6,20 @@ from thunder.info import get_cls_info, get_obj_info
 
 
 class Store(object):
-    def __init__(self, conn_string, database):
+    def __init__(self, conn_string, database, trace=False):
         if not conn_string.startswith('mongodb://'):
             conn_string = 'mongodb://' + conn_string
         self.connection = Connection(conn_string)
         self.database = Database(self.connection, database)
-
+        self.trace = trace
+        self.collections = []
         self.obj_infos = set()
         self._cache = {}
 
     def _load(self, cls_info, operation, *args, **kwargs):
         fields = kwargs.pop('fields', None)
         if not fields:
-            fields = ['_id']
+            fields = []
             for attr in cls_info.attributes:
                 if attr != cls_info.id_field:
                     fields.append(attr)
