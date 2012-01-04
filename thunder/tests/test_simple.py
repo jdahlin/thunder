@@ -83,7 +83,6 @@ class TestStore(StoreTest):
 
     def testUpdate(self):
         class Person(object):
-            __thunder_doc__ = 'Person'
             id = ObjectIdField()
             name = StringField()
             full_name = StringField()
@@ -106,7 +105,6 @@ class TestStore(StoreTest):
 
     def testRemove(self):
         class Person(object):
-            __thunder_doc__ = 'Person'
             id = ObjectIdField()
             name = StringField()
             full_name = StringField()
@@ -144,7 +142,6 @@ class TestStore(StoreTest):
 
     def testFind(self):
         class Person(object):
-            __thunder_doc__ = 'Person'
             id = ObjectIdField()
             name = StringField()
             full_name = StringField()
@@ -177,7 +174,6 @@ class TestStore(StoreTest):
 
     def testFindArgs(self):
         class Person(object):
-            __thunder_doc__ = 'Person'
             id = ObjectIdField()
             name = StringField()
             full_name = StringField()
@@ -202,7 +198,6 @@ class TestStore(StoreTest):
 
     def testFindOne(self):
         class Person(object):
-            __thunder_doc__ = 'Person'
             id = ObjectIdField()
             name = StringField()
             full_name = StringField()
@@ -232,7 +227,6 @@ class TestStore(StoreTest):
 
     def testCount(self):
         class Person(object):
-            __thunder_doc__ = 'Person'
             id = ObjectIdField()
             name = StringField()
             full_name = StringField()
