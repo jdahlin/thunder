@@ -141,6 +141,11 @@ class Store(object):
     def drop_cache(self):
         self._cache = {}
 
+    def drop_collection(self, cls):
+        cls_info = get_cls_info(cls)
+        collection = cls_info.get_collection(self)
+        collection.drop()
+
     def drop_collections(self):
         for name in self.database.collection_names():
             if name.startswith('system'):
