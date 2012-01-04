@@ -1,7 +1,6 @@
 from pymongo import Connection
 from pymongo.database import Database
 
-from thunder.exceptions import NotOneError
 from thunder.info import get_cls_info, get_obj_info
 
 
@@ -51,12 +50,8 @@ class Store(object):
         collection = cls_info.get_collection(self)
         cursor = self._load(cls_info, collection.find,
                             {'_id': obj_id}, limit=2)
-        if cursor.count() == 2:  # pragma: nocoverage
-            raise NotOneError("One document expected, but more found")
-        elif cursor.count() == 1:
+        if cursor.count():
             return self._build_doc(cls_info, cursor[0])
-        else:
-            return None
 
     def find(self, cls, *args, **kwargs):
         cls_info = get_cls_info(cls)
