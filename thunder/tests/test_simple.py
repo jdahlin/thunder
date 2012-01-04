@@ -4,7 +4,8 @@ import unittest
 
 from thunder.exceptions import ValidationError
 from thunder.fields import (DateTimeField, DecimalField,
-                            ObjectIdField, StringField)
+                            ObjectIdField, StringField,
+                            Field, IntField)
 from thunder.info import get_cls_info
 from thunder.store import Store
 
@@ -435,3 +436,28 @@ class DecimalFieldTest(StoreTest):
             ValidationError, setattr, d, 'dec', decimal.Decimal("12.345678"))
 
         self.assertEquals(collection.ops.pop().name, 'find')
+
+
+class TestField(unittest.TestCase):
+    def test__get__(self):
+        class Document(object):
+            i = ObjectIdField()
+            f = Field()
+
+        d = Document()
+        self.assertEquals(d.f, None)
+        d.f = 1
+        self.assertEquals(d.f, 1)
+        self.failUnless(Document.f)
+
+
+class TestIntField(unittest.TestCase):
+    def testSimple(self):
+        class Document(object):
+            i = ObjectIdField()
+            int = IntField()
+
+        d = Document()
+        self.assertEquals(d.int, None)
+        d.int = 1
+        self.assertEquals(d.int, 1)

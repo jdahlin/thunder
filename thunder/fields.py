@@ -7,8 +7,10 @@ from thunder.info import get_obj_info
 
 
 class Field(object):
-    def __init__(self, default):
+    def __init__(self, default=None, required=False, unique=False):
         self.default = default
+        self.required = required
+        self.unique = unique
 
     def __set__(self, obj, value):
         obj_info = get_obj_info(obj)
@@ -36,8 +38,8 @@ class ObjectIdField(Field):
 
 
 class StringField(Field):
-    def __init__(self):
-        Field.__init__(self, default='')
+    def __init__(self, **kwargs):
+        Field.__init__(self, **kwargs)
 
 
 class EmailField(StringField):
@@ -59,10 +61,11 @@ class EmailField(StringField):
         return value
 
 
-class DateTimeField(Field):
-    def __init__(self):
-        Field.__init__(self, default=None)
+class BooleanField(Field):
+    pass
 
+
+class DateTimeField(Field):
     def to_python(self, value):
         return value
 
@@ -70,9 +73,15 @@ class DateTimeField(Field):
         if self.default == datetime.datetime.now:  # pragma: nocoverage
             value = datetime.datetime.now()
         return value
+ComplexDateTimeField = DateTimeField
 
 
 class IntField(Field):
+    def __init__(self, min_value=None, max_value=None, **kwargs):
+        self.min_value = kwargs.pop('min_value', None)
+        self.max_value = kwargs.pop('max_value', None)
+        Field.__init__(self, kwargs)
+
     def to_python(self, value):  # pragma: nocoverage
         try:
             return int(value)
@@ -144,6 +153,25 @@ class DecimalField(Field):
         return int(value / self.precision_multiplier)
 
 
-# ReferenceField
-# ListField
-# DictField
+class GenericReferenceField(Field):
+    pass
+
+
+class ReferenceField(Field):
+    pass
+
+
+class ListField(Field):
+    pass
+
+
+class DictField(Field):
+    pass
+
+
+class GeoPointField(Field):
+    pass
+
+
+class EmbeddedDocumentField(Field):
+    pass
