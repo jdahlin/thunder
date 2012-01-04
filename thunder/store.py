@@ -15,7 +15,17 @@ class Store(object):
         self.obj_infos = set()
         self._cache = {}
 
-    def _load(self, cls_info, doc):
+    def _load(self, cls_info, operation, *args, **kwargs):
+        fields = kwargs.pop('fields', None)
+        if not fields:
+            fields = ['_id']
+            for attr in cls_info.attributes:
+                if attr != cls_info.id_field:
+                    fields.append(attr)
+
+        return operation(*args, fields=fields, **kwargs)
+
+    def _build_doc(self, cls_info, doc):
         obj = self._cache.get((cls_info, doc["_id"]))
         if obj is not None:
             return obj
@@ -29,12 +39,7 @@ class Store(object):
             if attr == '_id':
                 field = cls_info.id_field
             else:
-                try:
-                    field = cls_info.attributes[attr]
-                # This model doesn't have a field for this document attribute,
-                # skip it
-                except KeyError:
-                    continue
+                field = cls_info.attributes[attr]
             obj_info.variables[field] = value
 
         self._cache[(cls_info, doc["_id"])] = obj
@@ -43,27 +48,27 @@ class Store(object):
     def get(self, cls, obj_id):
         cls_info = get_cls_info(cls)
         collection = cls_info.get_collection(self)
-        cursor = collection.find({'_id': obj_id}, limit=2)
+        cursor = self._load(cls_info, collection.find, {'_id': obj_id}, limit=2)
         if cursor.count() == 2:
             raise NotOneError("One document expected, but more found")
         elif cursor.count() == 1:
-            return self._load(cls_info, cursor[0])
+            return self._build_doc(cls_info, cursor[0])
         else:
             return None
 
     def find(self, cls, *args, **kwargs):
         cls_info = get_cls_info(cls)
         collection = cls_info.get_collection(self)
-        cursor = collection.find(*args, **kwargs)
+        cursor = self._load(cls_info, collection.find, *args, **kwargs)
         for item in cursor:
-            yield self._load(cls_info, item)
+            yield self._build_doc(cls_info, item)
 
     def find_one(self, cls, *args, **kwargs):
         cls_info = get_cls_info(cls)
         collection = cls_info.get_collection(self)
-        item = collection.find_one(*args, **kwargs)
+        item = self._load(cls_info, collection.find_one, *args, **kwargs)
         if item is not None:
-            return self._load(cls_info, item)
+            return self._build_doc(cls_info, item)
 
     def count(self, cls):
         cls_info = get_cls_info(cls)
