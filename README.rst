@@ -6,7 +6,7 @@ Presentation
 ------------
 Thunder is an ORM for MongoDB_ built on top of the PyMongo driver.
 
-It's inspired by Storm_.
+It's inspired by Storm_ and reuses some APIs from mongoengine_.
 
 Tutorial
 --------
@@ -55,6 +55,8 @@ We can now query the store for the document:
 >>>     print person
 <X object at 0x.....>
 
+.. _MongoDB: http://www.mongodb.org/
 .. _Storm: http://storm.canonical.com/
+.. _mongoengine: http://www.mongoengine.org/
 
-.. _MongoDB: http://www.mongodb.org
+
