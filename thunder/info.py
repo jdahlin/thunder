@@ -24,19 +24,22 @@ class ClassInfo(object):
     def __init__(self, cls):
         self.cls = cls
         self.doc_name = cls.__dict__.get('__thunder_doc__', cls.__name__)
-        self.id_field = None
+        self.primary_field = None
         self.collection = None
 
         # FIXME: move this some place.
-        from thunder.fields import Field, ObjectIdField
+        from thunder.fields import Field
         pairs = []
         for attr in dir(cls):
             field = getattr(cls, attr, None)
-            if isinstance(field, ObjectIdField):
-                if self.id_field:  # pragma: nocoverage
+            if not isinstance(field, Field):
+                continue
+
+            if field.primary:
+                if self.primary_field:  # pragma: nocoverage
                     raise InvalidObject(
                         "There can only be one ObjectIdField")
-                self.id_field = field
+                self.primary_field = field
             if isinstance(field, Field):
                 if attr == '_id':  # pragma: nocoverage
                     raise InvalidObject(
@@ -44,9 +47,9 @@ class ClassInfo(object):
                         "to mongodb")
                 pairs.append((attr, field))
 
-        if not self.id_field:  # pragma: nocoverage
+        if not self.primary_field:  # pragma: nocoverage
             raise InvalidObject(
-                "%r misses an ObjectIdField" % (cls.__name__, ))
+                "%r misses a primary ObjectIdField" % (cls.__name__, ))
 
         pairs.sort()
 
@@ -84,10 +87,10 @@ class ObjectInfo(object):
         del self._options[name]
 
     def set_obj_id(self, obj_id):
-        self.variables[self.cls_info.id_field] = obj_id
+        self.variables[self.cls_info.primary_field] = obj_id
 
     def get_obj_id(self):
-        return self.variables.get(self.cls_info.id_field)
+        return self.variables.get(self.cls_info.primary_field)
 
     @property
     def doc_name(self):  # pragma: nocoverage
@@ -95,8 +98,8 @@ class ObjectInfo(object):
 
     def to_mongo(self):
         doc = {}
-        for attr, field in self.cls_info.attributes.items():
-            if self.cls_info.id_field is field:
+        for attr, field in self.cls_info.abttributes.items():
+            if self.cls_info.primary_field is field:
                 continue
             doc[attr] = self.variables.get(field, field.default)
         return doc

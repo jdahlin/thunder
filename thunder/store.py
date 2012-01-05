@@ -20,7 +20,7 @@ class Store(object):
         if not fields:
             fields = []
             for attr in cls_info.attributes:
-                if attr != cls_info.id_field:
+                if attr != cls_info.primary_field:
                     fields.append(attr)
 
         return operation(*args, fields=fields, **kwargs)
@@ -37,7 +37,7 @@ class Store(object):
 
         for attr, value in doc.items():
             if attr == '_id':
-                field = cls_info.id_field
+                field = cls_info.primary_field
             else:
                 field = cls_info.attributes[attr]
             obj_info.variables[field] = value

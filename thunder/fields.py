@@ -11,6 +11,7 @@ class Field(object):
         self.default = default
         self.required = required
         self.unique = unique
+        self.primary = False
 
     def __set__(self, obj, value):
         obj_info = get_obj_info(obj)
@@ -33,8 +34,9 @@ class Field(object):
 
 
 class ObjectIdField(Field):
-    def __init__(self):
+    def __init__(self, primary=True):
         Field.__init__(self, default=None)
+        self.primary = primary
 
 
 class StringField(Field):
