@@ -76,6 +76,7 @@ class ObjectInfo(object):
         self.cls_info = get_cls_info(type(obj))
         self._options = {}
         self.variables = {}
+        self.flush_pending = False
 
     def set(self, name, value):
         self._options[name] = value

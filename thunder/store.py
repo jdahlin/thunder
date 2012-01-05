@@ -97,6 +97,7 @@ class Store(object):
                 "Document %s is already in a store" % (obj, ))
 
         obj_info.set('store', self)
+        obj_info.flush_pending = True
         self.obj_infos.add(obj_info)
 
     def remove(self, obj):
@@ -106,6 +107,7 @@ class Store(object):
             raise Exception("This object does not belong to this store")
 
         obj_info.set('action', 'remove')
+        obj_info.flush_pending = True
         self.obj_infos.add(obj_info)
 
     def _flush_one(self, obj_info):
@@ -136,6 +138,7 @@ class Store(object):
 
     def flush(self):
         for obj_info in self.obj_infos:
+            # FIXME: Use obj_info.flush_pending
             self._flush_one(obj_info)
 
     def drop_cache(self):
