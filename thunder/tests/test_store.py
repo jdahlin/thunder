@@ -29,6 +29,8 @@ class TestStore(StoreTest):
         self.failUnless(op.args)
         self.assertEquals(op.kwargs, {})
 
+        self.store.drop_cache()
+
         np = self.store.get(Person, p.id)
         self.assertEquals(np.full_name, "Jonathan Doe")
 
@@ -63,10 +65,10 @@ class TestStore(StoreTest):
         self.assertOp(Person, name='save')
 
         p = self.store.get(Person, p.id)
-        self.assertOp(Person, name='find')
         self.failUnless(p)
         p.name = 'Foo'
         old_id = p.id
+
         self.store.flush()
         self.assertEquals(p.id, old_id)
         self.assertOp(Person, name='save')
@@ -91,7 +93,6 @@ class TestStore(StoreTest):
         self.assertOp(Person, name='save')
 
         p = self.store.get(Person, p.id)
-        self.assertOp(Person, name='find')
         obj_id = p.id
         self.failUnless(p)
         self.store.remove(p)

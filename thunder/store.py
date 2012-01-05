@@ -48,9 +48,47 @@ class Store(object):
             func()
         return obj
 
+    def _encode(self, obj_info):
+        cls_info = obj_info.cls_info
+        doc = {}
+        for attr, field in cls_info.attributes.items():
+            if cls_info.primary_field is field:
+                continue
+            value = obj_info.variables.get(field, field.default)
+            doc[attr] = value
+        return doc
+
+    def _flush_one(self, obj_info):
+        cls_info = obj_info.cls_info
+        collection = cls_info.get_collection(self)
+        mongo_doc = self._encode(obj_info)
+        action = obj_info.get('action')
+        obj = obj_info.obj
+        func = getattr(obj, '__thunder_pre_flush__', None)
+        if func:
+            func()
+
+        if action == 'remove':
+            collection.remove(mongo_doc)
+            obj_info.delete("store")
+        else:
+            collection.save(mongo_doc)
+
+            obj = obj_info.obj
+            self._cache[(cls_info, mongo_doc['_id'])] = obj
+            if obj_info.get_obj_id() is None:
+                obj_info.set_obj_id(mongo_doc['_id'])
+
+        func = getattr(obj, '__thunder_flushed__', None)
+        if func:
+            func()
+
     def get(self, cls, obj_id):
         cls_info = get_cls_info(cls)
         collection = cls_info.get_collection(self)
+        obj = self._cache.get((cls_info, obj_id))
+        if obj is not None:
+            return obj
         cursor = self._load(cls_info, collection.find,
                             {'_id': obj_id}, limit=2)
         if cursor.count():
@@ -109,32 +147,7 @@ class Store(object):
         obj_info.set('action', 'remove')
         obj_info.flush_pending = True
         self.obj_infos.add(obj_info)
-
-    def _flush_one(self, obj_info):
-        cls_info = obj_info.cls_info
-        collection = cls_info.get_collection(self)
-        mongo_doc = obj_info.to_mongo()
-
-        action = obj_info.get('action')
-        obj = obj_info.obj
-        func = getattr(obj, '__thunder_pre_flush__', None)
-        if func:
-            func()
-
-        if action == 'remove':
-            collection.remove(mongo_doc)
-            obj_info.delete("store")
-        else:
-            collection.save(mongo_doc)
-
-            obj = obj_info.obj
-            self._cache[(cls_info, mongo_doc['_id'])] = obj
-            if obj_info.get_obj_id() is None:
-                obj_info.set_obj_id(mongo_doc['_id'])
-
-        func = getattr(obj, '__thunder_flushed__', None)
-        if func:
-            func()
+        del self._cache[(obj_info.cls_info, obj.id)]
 
     def flush(self):
         for obj_info in self.obj_infos:

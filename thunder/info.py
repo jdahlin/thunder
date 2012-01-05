@@ -96,11 +96,3 @@ class ObjectInfo(object):
     @property
     def doc_name(self):  # pragma: nocoverage
         return self.cls_info.doc_name
-
-    def to_mongo(self):
-        doc = {}
-        for attr, field in self.cls_info.abttributes.items():
-            if self.cls_info.primary_field is field:
-                continue
-            doc[attr] = self.variables.get(field, field.default)
-        return doc

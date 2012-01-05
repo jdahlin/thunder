@@ -159,10 +159,6 @@ class GenericReferenceField(Field):
     pass
 
 
-class ReferenceField(Field):
-    pass
-
-
 class ListField(Field):
     pass
 

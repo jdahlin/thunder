@@ -5,7 +5,8 @@ import unittest
 from thunder.exceptions import ValidationError
 from thunder.fields import (DateTimeField, DecimalField,
                             ObjectIdField,
-                            Field, IntField)
+                            Field, IntField, StringField)
+from thunder.reference import ReferenceField
 from thunder.testutils import StoreTest
 
 
@@ -81,3 +82,40 @@ class TestIntField(unittest.TestCase):
         self.assertEquals(d.int, None)
         d.int = 1
         self.assertEquals(d.int, 1)
+
+
+class TestReferenceField(StoreTest):
+    def testReference(self):
+        class Address(object):
+            id = ObjectIdField()
+            street = StringField()
+
+        class Person(object):
+            id = ObjectIdField()
+            address_id = ObjectIdField(primary=False)
+            address = ReferenceField(address_id, Address, 'id')
+
+        address = Address()
+        address.street = "My street"
+        self.store.add(address)
+        self.store.flush()
+        self.assertOp(Address, name='save')
+
+        p = Person()
+        p.address = address
+        self.assertEquals(p.address_id, address.id)
+        self.assertEquals(p.address, address)
+        self.store.add(p)
+
+        self.store.flush()
+        self.assertOp(Person, name='save')
+        # FIXME: Use flush_pending in store
+        self.assertOp(Address, name='save')
+
+        self.store.drop_cache()
+
+        p = self.store.find_one(Person)
+        self.assertOp(Person, name='find_one')
+        self.failUnless(p.address_id)
+        self.failUnless(p.address)
+        self.assertOp(Address, name='find')
