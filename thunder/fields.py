@@ -164,7 +164,8 @@ class ListField(Field):
 
 
 class DictField(Field):
-    pass
+    def __init__(self):
+        Field.__init__(self, default={})
 
 
 class GeoPointField(Field):
