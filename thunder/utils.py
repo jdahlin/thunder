@@ -60,3 +60,10 @@ class TraceCollection(object):
         end = time.time()
         self.add(Op('remove', args, kwargs, end - start))
         return retval
+
+    def drop(self, *args, **kwargs):
+        start = time.time()
+        retval = self.collection.drop(*args, **kwargs)
+        end = time.time()
+        self.add(Op('drop', args, kwargs, end - start))
+        return retval
