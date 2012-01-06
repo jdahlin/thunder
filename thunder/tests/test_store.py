@@ -1,4 +1,4 @@
-from thunder.fields import ObjectIdField, StringField
+from thunder.fields import StringField
 from thunder.store import Store
 from thunder.testutils import StoreTest
 
@@ -8,13 +8,11 @@ class TestStore(StoreTest):
     def testSimple(self):
         class Person(object):
             __thunder_doc__ = 'Person'
-            id = ObjectIdField()
             name = StringField()
             full_name = StringField()
 
         class SPPerson(object):
             __thunder_doc__ = 'Person'
-            id = ObjectIdField()
             name = StringField()
         collection = self.getCollection(Person)
 
@@ -39,7 +37,7 @@ class TestStore(StoreTest):
 
         op = collection.ops.pop()
         self.assertEquals(op.name, 'find')
-        self.assertEquals(op.kwargs, dict(fields=['id', 'full_name', 'name'],
+        self.assertEquals(op.kwargs, dict(fields=['name', 'full_name'],
                                           limit=2))
         self.assertEquals(op.args, ({'_id': np._id},))
 
@@ -52,13 +50,12 @@ class TestStore(StoreTest):
         collection = self.getCollection(SPPerson)
         op = collection.ops.pop()
         self.assertEquals(op.name, 'find')
-        self.assertEquals(op.kwargs, dict(fields=['id', 'name'],
+        self.assertEquals(op.kwargs, dict(fields=['name'],
                                           limit=2))
         self.failUnless(op.args)
 
     def testUpdate(self):
         class Person(object):
-            id = ObjectIdField()
             name = StringField()
             full_name = StringField()
 
@@ -80,7 +77,6 @@ class TestStore(StoreTest):
 
     def testRemove(self):
         class Person(object):
-            id = ObjectIdField()
             name = StringField()
             full_name = StringField()
 
@@ -116,7 +112,6 @@ class TestStore(StoreTest):
 
     def testFind(self):
         class Person(object):
-            id = ObjectIdField()
             name = StringField()
             full_name = StringField()
 
@@ -148,7 +143,6 @@ class TestStore(StoreTest):
 
     def testFindBy(self):
         class Person(object):
-            id = ObjectIdField()
             name = StringField()
             full_name = StringField()
 
@@ -179,7 +173,6 @@ class TestStore(StoreTest):
 
     def testFindArgs(self):
         class Person(object):
-            id = ObjectIdField()
             name = StringField()
             full_name = StringField()
 
@@ -203,7 +196,6 @@ class TestStore(StoreTest):
 
     def testFindOne(self):
         class Person(object):
-            id = ObjectIdField()
             name = StringField()
             full_name = StringField()
 
@@ -232,7 +224,6 @@ class TestStore(StoreTest):
 
     def testFindOneBy(self):
         class Person(object):
-            id = ObjectIdField()
             name = StringField()
             full_name = StringField()
 
@@ -261,7 +252,6 @@ class TestStore(StoreTest):
 
     def testCount(self):
         class Person(object):
-            id = ObjectIdField()
             name = StringField()
             full_name = StringField()
 
@@ -290,7 +280,7 @@ class TestStore(StoreTest):
 
     def testDropCollection(self):
         class Document(object):
-            i = ObjectIdField()
+            pass
         s = Store('localhost', 'hurricane-test-2')
         d = Document()
         s.add(d)
