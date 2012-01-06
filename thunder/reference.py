@@ -3,7 +3,7 @@ from thunder.info import get_obj_info
 
 
 class ReferenceField(Field):
-    def __init__(self, local_field, remote_cls, remote_attr, **kwargs):
+    def __init__(self, local_field, remote_cls, remote_attr='_id', **kwargs):
         if not isinstance(local_field, Field):  # pragma nocoverage
             raise TypeError(
                 "first argument must be a Field instance, not %r" % (
