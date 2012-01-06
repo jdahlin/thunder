@@ -47,10 +47,6 @@ class ClassInfo(object):
                         "to mongodb")
                 pairs.append((attr, field))
 
-        if not self.primary_field:  # pragma: nocoverage
-            raise InvalidObject(
-                "%r misses a primary ObjectIdField" % (cls.__name__, ))
-
         pairs.sort()
 
         self.fields = tuple(pair[1] for pair in pairs)
