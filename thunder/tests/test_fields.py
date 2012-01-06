@@ -102,7 +102,7 @@ class TestReferenceField(StoreTest):
             street = StringField()
 
         class Person(object):
-            address_id = ObjectIdField(primary=False)
+            address_id = ObjectIdField()
             address = ReferenceField(address_id, Address, '_id')
 
         address = Address()

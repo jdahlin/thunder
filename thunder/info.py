@@ -24,7 +24,6 @@ class ClassInfo(object):
     def __init__(self, cls):
         self.cls = cls
         self.doc_name = cls.__dict__.get('__thunder_doc__', cls.__name__)
-        self.primary_field = None
         self.collection = None
 
         # FIXME: move this some place.
@@ -35,11 +34,6 @@ class ClassInfo(object):
             if not isinstance(field, Field):
                 continue
 
-            if field.primary:
-                if self.primary_field:  # pragma: nocoverage
-                    raise InvalidObject(
-                        "There can only be one ObjectIdField")
-                self.primary_field = field
             if isinstance(field, Field):
                 if attr == '_id':  # pragma: nocoverage
                     raise InvalidObject(
@@ -82,12 +76,6 @@ class ObjectInfo(object):
 
     def delete(self, name):
         del self._options[name]
-
-    def set_obj_id(self, obj_id):
-        self.variables[self.cls_info.primary_field] = obj_id
-
-    def get_obj_id(self):
-        return self.variables.get(self.cls_info.primary_field)
 
     @property
     def doc_name(self):  # pragma: nocoverage

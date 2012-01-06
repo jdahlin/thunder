@@ -18,10 +18,7 @@ class Store(object):
     def _load(self, cls_info, operation, *args, **kwargs):
         fields = kwargs.pop('fields', None)
         if not fields:
-            fields = []
-            for attr in cls_info.attributes:
-                if attr != cls_info.primary_field:
-                    fields.append(attr)
+            fields = cls_info.attributes.keys()
 
         return operation(*args, fields=fields, **kwargs)
 
@@ -39,7 +36,7 @@ class Store(object):
 
         for attr, value in doc.items():
             if attr == '_id':
-                field = cls_info.primary_field
+                continue
             else:
                 field = cls_info.attributes[attr]
             obj_info.variables[field] = value
@@ -55,8 +52,6 @@ class Store(object):
         cls_info = obj_info.cls_info
         doc = {}
         for attr, field in cls_info.attributes.items():
-            if cls_info.primary_field is field:
-                continue
             value = obj_info.variables.get(field, field.default)
             doc[attr] = value
         return doc
@@ -81,8 +76,6 @@ class Store(object):
             obj_id = mongo_doc['_id']
             obj._id = obj_id
             self._cache[(cls_info, obj_id)] = obj
-            if obj_info.get_obj_id() is None:
-                obj_info.set_obj_id(obj_id)
 
         func = getattr(obj, '__thunder_flushed__', None)
         if func:
