@@ -29,12 +29,17 @@ class ReferenceField(Field):
         return remote
 
     def __set__(self, obj, value):
-        if not isinstance(value, self.remote_cls):  # pragma nocoverage
+        if (value is not None and
+            not isinstance(value, self.remote_cls)):
             raise TypeError("Must be a %s, not a %r" % (
                 self.remote_cls.__name__,
                 value.__class__.__name__))
+        if value is None:
+            remote_value = None
+        else:
+            remote_value = getattr(value, self.remote_attr)
+
         obj_info = get_obj_info(obj)
-        remote_value = getattr(value, self.remote_attr)
         obj_info.variables[self] = value, remote_value
         obj_info.variables[self.local_field] = remote_value
 

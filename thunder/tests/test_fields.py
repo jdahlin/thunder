@@ -119,7 +119,7 @@ class TestReferenceField(StoreTest):
 
         self.store.flush()
         self.assertOp(Person, name='save')
-        # FIXME: Use flush_pending in store
+        # FIXME: Use flush_pending to avoid this operation
         self.assertOp(Address, name='save')
 
         self.store.drop_cache()
@@ -129,3 +129,23 @@ class TestReferenceField(StoreTest):
         self.failUnless(p.address_id)
         self.failUnless(p.address)
         self.assertOp(Address, name='find')
+
+        p.address = None
+        self.failIf(p.address_id)
+        self.store.flush()
+        self.assertOp(Person, name='save')
+
+        # FIXME: use flush pending to avoid this operation
+        self.assertOp(Address, name='save')
+
+    def testReferenceWrongType(self):
+        class Address(object):
+            street = StringField()
+
+        class Person(object):
+            address_id = ObjectIdField()
+            address = ReferenceField(address_id, Address)
+
+        p = Person()
+
+        self.assertRaises(TypeError, setattr, p, 'address', True)

@@ -5,6 +5,8 @@ import re
 from thunder.exceptions import ValidationError
 from thunder.info import get_obj_info
 
+Undef = object()
+
 
 class Field(object):
     def __init__(self, default=None, required=False, unique=False):
@@ -20,8 +22,8 @@ class Field(object):
         if obj is None:
             return self
         obj_info = get_obj_info(obj)
-        value = obj_info.variables.get(self, None)
-        if value is None:
+        value = obj_info.variables.get(self, Undef)
+        if value is Undef:
             return None
         return self.to_python(value)
 
