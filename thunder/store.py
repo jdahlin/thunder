@@ -42,6 +42,8 @@ class Store(object):
                 field = cls_info.attributes[attr]
             obj_info.variables[field] = value
 
+        obj._id = doc["_id"]
+
         self._cache[(cls_info, doc["_id"])] = obj
         func = getattr(obj, '__thunder_loaded__', None)
         if func:
@@ -75,9 +77,11 @@ class Store(object):
             collection.save(mongo_doc)
 
             obj = obj_info.obj
-            self._cache[(cls_info, mongo_doc['_id'])] = obj
+            obj_id = mongo_doc['_id']
+            obj._id = obj_id
+            self._cache[(cls_info, obj_id)] = obj
             if obj_info.get_obj_id() is None:
-                obj_info.set_obj_id(mongo_doc['_id'])
+                obj_info.set_obj_id(obj_id)
 
         func = getattr(obj, '__thunder_flushed__', None)
         if func:

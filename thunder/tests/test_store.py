@@ -24,14 +24,17 @@ class TestStore(StoreTest):
         self.store.add(p)
         self.store.flush()
 
+        self.failUnless(hasattr(p, '_id'))
+
         op = collection.ops.pop()
         self.assertEquals(op.name, 'save')
         self.failUnless(op.args)
         self.assertEquals(op.kwargs, {})
 
         self.store.drop_cache()
-
         np = self.store.get(Person, p.id)
+
+        self.failUnless(hasattr(np, '_id'))
         self.assertEquals(np.full_name, "Jonathan Doe")
 
         op = collection.ops.pop()
@@ -40,14 +43,16 @@ class TestStore(StoreTest):
                                           limit=2))
         self.assertEquals(op.args, ({'_id': np.id},))
 
-        return
-
+        self.store.drop_cache()
         sp = self.store.get(SPPerson, p.id)
-        self.assertRaises(AttributeError, getattr, sp, 'full_name')
 
+        self.assertRaises(AttributeError, getattr, sp, 'full_name')
+        self.failUnless(hasattr(sp, '_id'))
+
+        collection = self.getCollection(SPPerson)
         op = collection.ops.pop()
         self.assertEquals(op.name, 'find')
-        self.assertEquals(op.kwargs, dict(fields=['id', 'full_name', 'name'],
+        self.assertEquals(op.kwargs, dict(fields=['id', 'name'],
                                           limit=2))
         self.failUnless(op.args)
 
