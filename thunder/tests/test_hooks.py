@@ -1,12 +1,9 @@
-from thunder.fields import ObjectIdField
 from thunder.testutils import StoreTest
 
 
 class TestHooks(StoreTest):
     def testLoaded(self):
         class Document(object):
-            i = ObjectIdField()
-
             def __init__(self):
                 self.loaded = False
 
@@ -30,14 +27,12 @@ class TestHooks(StoreTest):
 
     def testPreflush(self):
         class Document(object):
-            i = ObjectIdField()
-
             def __init__(self):
                 self.flushed = False
 
             def __thunder_pre_flush__(self):
                 self.flushed = True
-                if self.i is not None:
+                if hasattr(self, '_id'):
                     raise AssertionError()
         d = Document()
         self.failIf(d.flushed)
@@ -49,14 +44,12 @@ class TestHooks(StoreTest):
 
     def testFlushed(self):
         class Document(object):
-            i = ObjectIdField()
-
             def __init__(self):
                 self.flushed = False
 
             def __thunder_flushed__(self):
                 self.flushed = True
-                if self.i is None:
+                if self._id is None:
                     raise AssertionError()
         d = Document()
         self.failIf(d.flushed)

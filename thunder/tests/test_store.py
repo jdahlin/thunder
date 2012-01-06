@@ -32,7 +32,7 @@ class TestStore(StoreTest):
         self.assertEquals(op.kwargs, {})
 
         self.store.drop_cache()
-        np = self.store.get(Person, p.id)
+        np = self.store.get(Person, p._id)
 
         self.failUnless(hasattr(np, '_id'))
         self.assertEquals(np.full_name, "Jonathan Doe")
@@ -41,10 +41,10 @@ class TestStore(StoreTest):
         self.assertEquals(op.name, 'find')
         self.assertEquals(op.kwargs, dict(fields=['id', 'full_name', 'name'],
                                           limit=2))
-        self.assertEquals(op.args, ({'_id': np.id},))
+        self.assertEquals(op.args, ({'_id': np._id},))
 
         self.store.drop_cache()
-        sp = self.store.get(SPPerson, p.id)
+        sp = self.store.get(SPPerson, p._id)
 
         self.assertRaises(AttributeError, getattr, sp, 'full_name')
         self.failUnless(hasattr(sp, '_id'))
@@ -69,13 +69,13 @@ class TestStore(StoreTest):
         self.store.flush()
         self.assertOp(Person, name='save')
 
-        p = self.store.get(Person, p.id)
+        p = self.store.get(Person, p._id)
         self.failUnless(p)
         p.name = 'Foo'
-        old_id = p.id
+        old_id = p._id
 
         self.store.flush()
-        self.assertEquals(p.id, old_id)
+        self.assertNotEquals(p._id, old_id)
         self.assertOp(Person, name='save')
 
     def testRemove(self):
@@ -97,8 +97,8 @@ class TestStore(StoreTest):
         self.assertOp(Person, name='count')
         self.assertOp(Person, name='save')
 
-        p = self.store.get(Person, p.id)
-        obj_id = p.id
+        p = self.store.get(Person, p._id)
+        obj_id = p._id
         self.failUnless(p)
         self.store.remove(p)
         self.assertEquals(collection.count(), 1)
@@ -111,7 +111,7 @@ class TestStore(StoreTest):
         self.assertRaises(Exception, self.store.remove, p)
         self.failIf(self.store.get(Person, obj_id))
         self.assertOp(Person, name='find')
-        self.assertEquals(p.id, obj_id)
+        self.assertEquals(p._id, obj_id)
         self.assertEquals(p.name, "John")
 
     def testFind(self):

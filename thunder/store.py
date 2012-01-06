@@ -26,7 +26,9 @@ class Store(object):
         return operation(*args, fields=fields, **kwargs)
 
     def _build_doc(self, cls_info, doc):
-        obj = self._cache.get((cls_info, doc["_id"]))
+        obj_id = doc["_id"]
+
+        obj = self._cache.get((cls_info, obj_id))
         if obj is not None:
             return obj
         cls = cls_info.cls
@@ -42,9 +44,8 @@ class Store(object):
                 field = cls_info.attributes[attr]
             obj_info.variables[field] = value
 
-        obj._id = doc["_id"]
-
-        self._cache[(cls_info, doc["_id"])] = obj
+        obj._id = obj_id
+        self._cache[(cls_info, obj_id)] = obj
         func = getattr(obj, '__thunder_loaded__', None)
         if func:
             func()
@@ -151,7 +152,7 @@ class Store(object):
         obj_info.set('action', 'remove')
         obj_info.flush_pending = True
         self.obj_infos.add(obj_info)
-        del self._cache[(obj_info.cls_info, obj.id)]
+        del self._cache[(obj_info.cls_info, obj._id)]
 
     def flush(self):
         for obj_info in self.obj_infos:

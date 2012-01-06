@@ -99,13 +99,11 @@ class TestDictField(unittest.TestCase):
 class TestReferenceField(StoreTest):
     def testReference(self):
         class Address(object):
-            id = ObjectIdField()
             street = StringField()
 
         class Person(object):
-            id = ObjectIdField()
             address_id = ObjectIdField(primary=False)
-            address = ReferenceField(address_id, Address, 'id')
+            address = ReferenceField(address_id, Address, '_id')
 
         address = Address()
         address.street = "My street"
@@ -115,7 +113,7 @@ class TestReferenceField(StoreTest):
 
         p = Person()
         p.address = address
-        self.assertEquals(p.address_id, address.id)
+        self.assertEquals(p.address_id, address._id)
         self.assertEquals(p.address, address)
         self.store.add(p)
 
