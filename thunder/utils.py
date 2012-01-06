@@ -61,7 +61,7 @@ class TraceCollection(object):
         self.add(Op('remove', args, kwargs, end - start))
         return retval
 
-    def drop(self, *args, **kwargs):
+    def drop(self, *args, **kwargs):  # pragma nocoverage
         start = time.time()
         retval = self.collection.drop(*args, **kwargs)
         end = time.time()

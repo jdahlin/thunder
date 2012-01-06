@@ -4,7 +4,7 @@ import unittest
 
 from thunder.exceptions import ValidationError
 from thunder.fields import (DateTimeField, DecimalField,
-                            ObjectIdField,
+                            ObjectIdField, DictField,
                             Field, IntField, StringField)
 from thunder.reference import ReferenceField
 from thunder.testutils import StoreTest
@@ -82,6 +82,18 @@ class TestIntField(unittest.TestCase):
         self.assertEquals(d.int, None)
         d.int = 1
         self.assertEquals(d.int, 1)
+
+
+class TestDictField(unittest.TestCase):
+    def testSimple(self):
+        class Document(object):
+            i = ObjectIdField()
+            dct = DictField()
+
+        d = Document()
+        self.assertEquals(d.dct, None)
+        d.dct = {}
+        self.assertEquals(d.dct, {})
 
 
 class TestReferenceField(StoreTest):
